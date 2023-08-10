@@ -11,3 +11,7 @@ Ideally don't use templating engines, just code some stuff in python. Use python
 ```bash
 $ python src/generate.py $SRC $DEST
 ```
+
+# Todo
+
+- [ ] Get mermaid support working
