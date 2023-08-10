@@ -1,0 +1,26 @@
+* {
+  font-family: monospace;
+  background-color: black;
+  color: white;
+}
+
+a {
+  color: #ff33aa;
+}
+
+ul {
+  list-style-type: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+#content {
+  width: 40em;
+  margin: 0;
+  padding: 0 1em 0 1em;
+}
