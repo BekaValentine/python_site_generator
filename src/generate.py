@@ -33,7 +33,7 @@ def parse_metadata_line(l):
 
   return (m.group(1), m.group(2))
 
-def ELEMENT_HEAD(path, meta):
+def ELEMENT_HEAD(path, base_path, meta):
   title = meta.get('title') or path
   # print('FINDME: ', meta)
   NEWLINE = '\n'
@@ -41,7 +41,7 @@ def ELEMENT_HEAD(path, meta):
 
 <head>
   <title>{title}</title>
-  <base href="file:///mount/ultralaser_home/Projects/python_site_engine/out/" />
+  <base href="{base_path}" />
   <link rel="stylesheet" href="css.css" />
   <!--
     metadata
@@ -55,7 +55,7 @@ def ELEMENT_HEAD(path, meta):
 
 '''
 
-def generate(src_dir_path, dest_dir_path):
+def generate(src_dir_path, dest_dir_path, base_path):
 
   page_index = []
 
@@ -78,11 +78,14 @@ def generate(src_dir_path, dest_dir_path):
               'path': path,
               'metadata': meta
             })
-            dest.write(pretty_html(ELEMENT_HEAD(path, meta) + '<div id="content">' + markdown_to_html(md) + '</div>'))
+            dest.write(pretty_html(ELEMENT_HEAD(path, base_path, meta) + '<div id="content">' + markdown_to_html(md) + '</div>'))
       else:
         dest_file_path = f'{dest_local_root}/{f}'
         shutil.copy(src_file_path, dest_file_path)
 
+  generate_index_page(src_dir_path, dest_dir_path, base_path, page_index)
+
+def generate_index_page(src_dir_path, dest_dir_path, base_path, page_index):
   # generate an index page
   index_lines = []
   for page in sorted(page_index, key=lambda p: p['path']):
@@ -98,17 +101,24 @@ def generate(src_dir_path, dest_dir_path):
 
   index_path = f'{dest_dir_path}/index.html'
   with open(index_path, 'w') as dest:
-    dest.write(pretty_html(ELEMENT_HEAD(path, { **meta, 'title': 'index' }) + '<div id="content">' +  markdown_to_html('\n'.join(index_lines)) + '</div>'))
+    dest.write(pretty_html(ELEMENT_HEAD(path, base_path, { 'title': 'index' }) + '<div id="content">' +  markdown_to_html('\n'.join(index_lines)) + '</div>'))
 
 
 if __name__ == '__main__':
 
-  if len(sys.argv) != 3:
-    print('please provide a source directory and destination directory')
+  required_args = [
+    'source directory',
+    'destination directory',
+    'url base path',
+  ]
+
+  if len(sys.argv) != 1 + len(required_args):
+    print('please provide the following args: ' + ', '.join(required_args))
     exit()
 
   src = os.path.abspath(sys.argv[1])
   dest = os.path.abspath(sys.argv[2])
+  base = sys.argv[3]
 
   if not os.path.isdir(src):
     print(f'{src} is not a directory')
@@ -118,4 +128,4 @@ if __name__ == '__main__':
     print(f'creating destination directory {dest}')
     os.makedirs(dest, exist_ok=True)
 
-  generate(src, dest)
+  generate(src, dest, base)
